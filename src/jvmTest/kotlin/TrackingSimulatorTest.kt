@@ -2,6 +2,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TrackingSimulatorTest {
+
+    val trackingSimulator = TrackingSimulator.getInstance()
     val notes = arrayOf<String>()
     val updateHistory = arrayOf<ShippingUpdate>()
     val location = "unknown"
@@ -15,19 +17,15 @@ class TrackingSimulatorTest {
 
     @Test
     fun testAddAndFindShipment(){
-        TrackingSimulator.addShipment(shipment)
-        assertEquals(TrackingSimulator.findShipment("12345"), shipment)
+        trackingSimulator.addShipment(shipment)
+        assertEquals(trackingSimulator.findShipment("12345"), shipment)
     }
 
     @Test
     fun testFindNoShipment(){
-        assertEquals(TrackingSimulator.findShipment("1212"), null)
-        assertEquals(TrackingSimulator.findShipment("1234"), null)
-        assertEquals(TrackingSimulator.findShipment("198273847"), null)
+        assertEquals(trackingSimulator.findShipment("1212"), null)
+        assertEquals(trackingSimulator.findShipment("1234"), null)
+        assertEquals(trackingSimulator.findShipment("198273847"), null)
     }
-//    @Test
-//    fun testRunSimulation(){
-//        TrackingSimulator.runSimulation()
-//        assertEquals(TrackingSimulator.findShipment("s1000000"), null)
-//    }
+
 }

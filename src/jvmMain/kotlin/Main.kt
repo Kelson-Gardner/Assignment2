@@ -9,14 +9,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
+import java.io.File
 
 @Composable
 @Preview
 fun App() {
+    var trackingSimulator = TrackingSimulator.getInstance()
     var text by remember { mutableStateOf("") }
     var trackerCards by remember { mutableStateOf(listOf<TrackerViewHelper>()) }
     var shipmentNotFoundCards by remember { mutableStateOf(listOf<String>())}
@@ -28,24 +40,23 @@ fun App() {
                 .padding(vertical = 10.dp),
         ) {
             Column{
-            Text(
-                text = "Tracking Shipment: ${shipment.shipmentId.value}\n" +
-                        "Status: ${shipment.shipmentStatus.value}\n" +
-                        "Location: ${shipment.shipmentLocation.value}\n" +
-                        "Expected Delivery: ${shipment.expectedShipmentDeliveryDate.value}\n" +
-                        "Status Updates: ${shipment.shipmentUpdateHistory.value.joinToString("\n")}\n" +
-                        "Notes: \n${shipment.shipmentNotes.value.joinToString("\n")}\n",
-                modifier = Modifier.padding(16.dp)
-            )
-            Button(
-                onClick = {
-                trackerCards = trackerCards.filter { it != shipment}
-
-            },
-                modifier = Modifier.align(Alignment.End)
-            ){
-                Text("Stop Tracking")
-            }
+                Text(
+                    text = "Tracking Shipment: ${shipment.shipmentId.value}\n" +
+                            "Status: ${shipment.shipmentStatus.value}\n" +
+                            "Location: ${shipment.shipmentLocation.value}\n" +
+                            "Expected Delivery: ${shipment.expectedShipmentDeliveryDate.value}\n" +
+                            "Status Updates: ${shipment.shipmentUpdateHistory.value.joinToString("\n")}\n" +
+                            "Notes: \n${shipment.shipmentNotes.value.joinToString("\n")}\n",
+                    modifier = Modifier.padding(16.dp)
+                )
+                Button(
+                    onClick = {
+                            trackerCards = trackerCards.filter { it != shipment }
+                    },
+                    modifier = Modifier.align(Alignment.End)
+                ){
+                    Text("Stop Tracking")
+                }
             }
         }
     }
@@ -74,9 +85,9 @@ fun App() {
         }
     }
 
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        )
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    )
     {
         Row(
             modifier = Modifier
@@ -91,7 +102,7 @@ fun App() {
                 modifier = Modifier.weight(1f)
             )
             Button(onClick = {
-                val shipmentSearched = TrackingSimulator.findShipment(text)
+                val shipmentSearched = trackingSimulator.findShipment(text)
                 if (shipmentSearched != null) {
                     val trackerViewHelper = TrackerViewHelper()
                     shipmentSearched.subscribe(trackerViewHelper)
@@ -107,22 +118,44 @@ fun App() {
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
             items(shipmentNotFoundCards) {
-                cardText -> shipmentNotFoundCard(cardText)
+                    cardText -> shipmentNotFoundCard(cardText)
             }
             items(trackerCards) { cardText ->
                 trackerCard(cardText)
             }
         }
     }
-    }
+}
 
+fun Server(){
+    var trackingSimulator = TrackingSimulator.getInstance()
+    embeddedServer(Netty, 8080){
+        routing {
+            install(ContentNegotiation){
+                json( Json{
+                    ignoreUnknownKeys = true
+                    prettyPrint = true
+                    isLenient = true
+                })
+            }
+            get("/"){
+                call.respondText(File("index.html").readText(), ContentType.Text.Html)
+            }
+            post("/update"){
+                val update = call.receiveText()
+                trackingSimulator.updateShipment(update)
+                call.respondText{"Shipment updated!"}
+            }
+        }
+    }.start(wait = true)
+}
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
         App()
         val scope = CoroutineScope(Dispatchers.Default + Job())
         scope.launch{
-        TrackingSimulator.runSimulation()
+            Server()
         }
     }
 }

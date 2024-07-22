@@ -1,9 +1,5 @@
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.io.File
+class TrackingSimulator private constructor(){
 
-object TrackingSimulator {
     private var shipments: Array<Shipment> = arrayOf()
 
     private val strategies = mapOf(
@@ -16,6 +12,17 @@ object TrackingSimulator {
         "canceled" to CanceledShipment(),
         "noteadded" to NoteAddedToShipment()
     )
+
+    companion object {
+        @Volatile
+        private var instance: TrackingSimulator? = null
+
+        fun getInstance(): TrackingSimulator {
+            return instance ?: synchronized(this) {
+                instance ?: TrackingSimulator().also { instance = it }
+            }
+        }
+    }
 
     fun findShipment(id: String): Shipment?{
         return shipments.find {it.id == id}
@@ -41,34 +48,20 @@ object TrackingSimulator {
             location)
     }
 
-    private fun updateShipment(updateStrategy: String){
+    fun updateShipment(updateStrategy: String){
         val shipmentDetails = updateStrategy.split(',')
-        val shipment = findShipment(shipmentDetails[1])
+        val shipment: Shipment?
+        if(shipmentDetails[0] == "created"){
+            shipment = createShipment(updateStrategy)
+            addShipment(shipment)
+        }
+        else{
+            shipment = findShipment(shipmentDetails[1])
+        }
         val shipmentUpdate = strategies[shipmentDetails[0]] ?: CreatedShipment()
         if (shipment != null) {
             shipmentUpdate.updateShipment(shipment, shipmentDetails)
         }
     }
-
-    fun runSimulation() = runBlocking {
-            launch {
-        readFileLineByLine("src/jvmMain/resources/test.txt")
-            }
-    }
-
-    private suspend fun readFileLineByLine(filePath: String) {
-        val file = File(filePath)
-        file.bufferedReader().useLines { lines ->
-            lines.forEach { line ->
-                if(line.contains("created")){
-                    val shipment = createShipment(line)
-                    addShipment(shipment)
-                }
-                else{
-                    updateShipment(line)
-                }
-                delay(1000)
-            }
-        }
-    }
 }
+

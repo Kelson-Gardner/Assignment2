@@ -1,3 +1,5 @@
+import kotlinx.serialization.Serializable
+
 class Shipment(
     var status: String,
     val id: String,
