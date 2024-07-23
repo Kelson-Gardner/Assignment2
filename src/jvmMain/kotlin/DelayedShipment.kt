@@ -13,5 +13,6 @@ class DelayedShipment: ShipmentUpdateStrategy {
         shipment.addShippingUpdate(shippingUpdate)
         shipment.expectedDeliveryTimeStamp = newExpectedDeliveryTime
         shipment.notifyObservers()
+        shipment.checkDeliveryDate()
     }
 }

@@ -1,3 +1,5 @@
+import kotlin.reflect.typeOf
+
 class ShippedShipment: ShipmentUpdateStrategy {
     override fun updateShipment(shipment: Shipment, shipmentUpdateDetails: List<String>) {
         val oldStatus = shipment.status
@@ -13,5 +15,6 @@ class ShippedShipment: ShipmentUpdateStrategy {
         shipment.expectedDeliveryTimeStamp = newExpectedDeliveryTime
         shipment.addShippingUpdate(shippingUpdate)
         shipment.notifyObservers()
+        shipment.checkDeliveryDate()
     }
 }

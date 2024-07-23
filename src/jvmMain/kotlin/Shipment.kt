@@ -1,6 +1,5 @@
-import kotlinx.serialization.Serializable
 
-class Shipment(
+abstract class Shipment(
     var status: String,
     val id: String,
     notes: Array<String>,
@@ -34,8 +33,10 @@ class Shipment(
         observers += observer
     }
 
-    override  fun unsubscribe(observer: ShipmentObserver){
+    override fun unsubscribe(observer: ShipmentObserver){
         observers.remove(observer)
     }
+
+    abstract fun checkDeliveryDate()
 
 }

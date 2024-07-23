@@ -1,3 +1,5 @@
+import kotlin.reflect.typeOf
+
 class TrackingSimulator private constructor(){
 
     private var shipments: Array<Shipment> = arrayOf()
@@ -32,31 +34,22 @@ class TrackingSimulator private constructor(){
         shipments += shipment
     }
 
-    private fun createShipment(shipment: String): Shipment{
-        val notes = arrayOf<String>()
-        val updateHistory = arrayOf<ShippingUpdate>()
-        val location = "unknown"
-        val shipmentDetails = shipment.split(',')
-        val shipmentStatus = shipmentDetails[0]
-        val shipmentId = shipmentDetails[1]
-        return Shipment(
-            shipmentStatus,
-            shipmentId,
-            notes,
-            updateHistory,
-            0,
-            location)
-    }
-
     fun updateShipment(updateStrategy: String){
         val shipmentDetails = updateStrategy.split(',')
         val shipment: Shipment?
         if(shipmentDetails[0] == "created"){
-            shipment = createShipment(updateStrategy)
-            addShipment(shipment)
+            val factoryShipment = ShipmentFactory()
+            shipment = factoryShipment.createShipment(shipmentDetails)
+            if(shipment != null) {
+                println(shipment::class)
+                println(shipment)
+                addShipment(shipment)
+            }
         }
         else{
             shipment = findShipment(shipmentDetails[1])
+            println(shipment!!::class)
+            println(shipment)
         }
         val shipmentUpdate = strategies[shipmentDetails[0]] ?: CreatedShipment()
         if (shipment != null) {
