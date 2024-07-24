@@ -8,7 +8,7 @@ class OvernightShipment(
     private val shippedTimeStamp: Long
 ) : Shipment(status, id, notes, updateHistory, expectedDeliveryTimeStamp, currentLocation){
     override fun checkDeliveryDate() {
-        val maxDeliveryTimeStamp = shippedTimeStamp + 1 * 24 * 60 * 60 * 1000 // 3 days in milliseconds
+        val maxDeliveryTimeStamp = shippedTimeStamp + 1 * 24 * 60 * 60 * 1000
         if (expectedDeliveryTimeStamp > maxDeliveryTimeStamp) {
             addNote("Expected delivery date exceeds 1 day from the shipped date.")
             notifyObservers()

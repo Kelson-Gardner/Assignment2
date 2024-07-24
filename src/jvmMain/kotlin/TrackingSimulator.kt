@@ -41,15 +41,11 @@ class TrackingSimulator private constructor(){
             val factoryShipment = ShipmentFactory()
             shipment = factoryShipment.createShipment(shipmentDetails)
             if(shipment != null) {
-                println(shipment::class)
-                println(shipment)
                 addShipment(shipment)
             }
         }
         else{
             shipment = findShipment(shipmentDetails[1])
-            println(shipment!!::class)
-            println(shipment)
         }
         val shipmentUpdate = strategies[shipmentDetails[0]] ?: CreatedShipment()
         if (shipment != null) {
