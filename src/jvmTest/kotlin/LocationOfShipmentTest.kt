@@ -6,9 +6,9 @@ class LocationShipmentTest {
     val notes = arrayOf<String>()
     val updateHistory = arrayOf<ShippingUpdate>()
     val location = "unknown"
-    val shipment = Shipment(
+    val standardShipment = StandardShipment(
         "shipped",
-        "12345",
+        "12342",
         notes,
         updateHistory,
         0,
@@ -16,17 +16,17 @@ class LocationShipmentTest {
 
     @Test
     fun testNoUpdateOfShipmentStatus(){
-        shipmentUpdate.updateShipment(shipment, listOf("location", "12345", "123456789","Los Angelos"))
-        assertEquals(shipment.status, "shipped")
+        shipmentUpdate.updateShipment(standardShipment, listOf("location", "12345", "123456789","Los Angelos"))
+        assertEquals(standardShipment.status, "shipped")
     }
     @Test
     fun testUpdateUpdateLocation(){
-        shipmentUpdate.updateShipment(shipment, listOf("location", "12345", "123456789", "Los Angelos"))
-        assertEquals(shipment.currentLocation, "Los Angelos")
+        shipmentUpdate.updateShipment(standardShipment, listOf("location", "12345", "123456789", "Los Angelos"))
+        assertEquals(standardShipment.currentLocation, "Los Angelos")
     }
     @Test
     fun testNoAddingOfShippingUpdates(){
-        shipmentUpdate.updateShipment(shipment, listOf("location", "12345", "123456789", "Los Angelos"))
-        assertEquals(shipment.updateHistory.isEmpty(), true)
+        shipmentUpdate.updateShipment(standardShipment, listOf("location", "12345", "123456789", "Los Angelos"))
+        assertEquals(standardShipment.updateHistory.isEmpty(), true)
     }
 }

@@ -6,9 +6,9 @@ class DelayedShipmentTest {
     val notes = arrayOf<String>()
     val updateHistory = arrayOf<ShippingUpdate>()
     val location = "unknown"
-    val shipment = Shipment(
+    val standardShipment = StandardShipment(
         "shipped",
-        "12345",
+        "12342",
         notes,
         updateHistory,
         0,
@@ -16,19 +16,19 @@ class DelayedShipmentTest {
 
     @Test
     fun testUpdateShipmentStatus(){
-        shipmentUpdate.updateShipment(shipment, listOf("delayed", "12345", "123456789","11111111"))
-        assertEquals(shipment.status, "delayed")
+        shipmentUpdate.updateShipment(standardShipment, listOf("delayed", "12345", "123456789","11111111"))
+        assertEquals(standardShipment.status, "delayed")
     }
     @Test
     fun testUpdateExpectedDeliveryTime(){
-        shipmentUpdate.updateShipment(shipment, listOf("delayed", "12345", "123456789","11111111"))
-        assertEquals(shipment.expectedDeliveryTimeStamp, 11111111)
+        shipmentUpdate.updateShipment(standardShipment, listOf("delayed", "12345", "123456789","11111111"))
+        assertEquals(standardShipment.expectedDeliveryTimeStamp, 11111111)
     }
     @Test
     fun testUpdateUpdateHistory(){
-        shipmentUpdate.updateShipment(shipment, listOf("delayed", "12345", "123456789", "11111111"))
-        assertEquals(shipment.updateHistory[0].previousStatus, "shipped")
-        assertEquals(shipment.updateHistory[0].newStatus, "delayed")
-        assertEquals(shipment.updateHistory[0].timeStamp , 123456789)
+        shipmentUpdate.updateShipment(standardShipment, listOf("delayed", "12345", "123456789", "11111111"))
+        assertEquals(standardShipment.updateHistory[0].previousStatus, "shipped")
+        assertEquals(standardShipment.updateHistory[0].newStatus, "delayed")
+        assertEquals(standardShipment.updateHistory[0].timeStamp , 123456789)
     }
 }
